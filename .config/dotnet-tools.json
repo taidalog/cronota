@@ -13,6 +13,12 @@
       "commands": [
         "femto"
       ]
+    },
+    "fantomas": {
+      "version": "6.2.2",
+      "commands": [
+        "fantomas"
+      ]
     }
   }
 }
