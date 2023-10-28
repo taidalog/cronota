@@ -1,3 +1,229 @@
-module App
+namespace Cronota
 
+open System
+open System.Text.RegularExpressions
 open Browser.Dom
+open Browser.Types
+open Fable.Core
+open Fermata
+
+module App =
+    type RunningStatus =
+        | NotStarted = 0
+        | Running = 1
+        | Stopping = 2
+        | Finished = 4
+
+    let status = [ "NotStarted"; "Running"; "Stopping"; ""; "Finished" ]
+
+    [<Emit("setInterval($0, $1)")>]
+    let setInterval (callback: unit -> unit) (interval: int) : int = jsNative
+
+    [<Emit("clearInterval($0)")>]
+    let clearInterval (intervalID: int) : unit = jsNative
+
+    let mutable startTime = DateTime.MinValue
+    let mutable intervalId = -1
+    let mutable timeAcc = TimeSpan.Zero
+    let mutable lastTime = DateTime.MinValue
+    let mutable notes: (int * string) list = []
+    let mutable runningStatus = RunningStatus.NotStarted
+
+    let timeSpanToDisplay (timeSpan: TimeSpan) =
+        let h = timeSpan.Hours |> string |> String.padLeft 2 '0'
+        let m = timeSpan.Minutes |> string |> String.padLeft 2 '0'
+        let s = timeSpan.Seconds |> string |> String.padLeft 2 '0'
+        let ms = timeSpan.Milliseconds |> string |> String.padLeft 3 '0'
+        $"%s{h}:%s{m}:%s{s}.%s{ms}"
+
+    let countUp () =
+        intervalId <-
+            setInterval
+                (fun _ ->
+                    let elapsedTime = DateTime.Now - startTime + timeAcc
+                    document.getElementById("timer").innerText <- timeSpanToDisplay elapsedTime)
+                10
+
+    let start event =
+        let notesEl = document.getElementById "notes" :?> HTMLInputElement
+
+        let notesArray =
+            notesEl.value
+            |> String.split '\n'
+            |> List.filter ((<>) "")
+            |> List.mapi (fun i x -> i + 1, x)
+
+        if List.length notesArray = 0 then
+            notesEl.focus ()
+        else
+            match runningStatus with
+            | RunningStatus.NotStarted
+            | RunningStatus.Finished ->
+                timeAcc <- TimeSpan.Zero
+                notes <- notesArray
+
+                (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
+                (document.getElementById "logs").innerHTML <- ""
+                document.getElementById("currNote").innerText <- $"%d{fst (List.head notes)}, %s{snd (List.head notes)}"
+
+                if List.length notes > 1 then
+                    document.getElementById("nextNote").innerText <-
+                        $"%d{fst (List.item 1 notes)}, %s{snd (List.item 1 notes)}"
+                else
+                    ()
+
+                notesEl.disabled <- true
+
+                [ ("mainButton", true); ("stopButton", false); ("nextButton", false) ]
+                |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
+
+                runningStatus <- RunningStatus.Running
+                printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+
+                startTime <- DateTime.Now
+                lastTime <- startTime
+                countUp ()
+            | RunningStatus.Running -> ()
+            | RunningStatus.Stopping ->
+                notesEl.disabled <- true
+
+                [ ("mainButton", true); ("stopButton", false); ("nextButton", false) ]
+                |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
+
+                runningStatus <- RunningStatus.Running
+                printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+
+                startTime <- DateTime.Now
+                lastTime <- startTime
+                countUp ()
+            | _ -> ()
+
+    document.getElementById("mainButton").onclick <- start
+
+    let stop event =
+        match runningStatus with
+        | RunningStatus.Running ->
+            clearInterval intervalId
+            timeAcc <- timeAcc + (DateTime.Now - startTime)
+
+            [ ("notes", false)
+              ("mainButton", false)
+              ("stopButton", true)
+              ("nextButton", true) ]
+            |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
+
+            runningStatus <- RunningStatus.Stopping
+            printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+        | _ -> ()
+
+    document.getElementById("stopButton").onclick <- stop
+
+    let reset event =
+        match runningStatus with
+        | RunningStatus.Running -> stop ()
+        | RunningStatus.Stopping
+        | RunningStatus.Finished ->
+            [ ("currNote", "")
+              ("nextNote", "")
+              ("logs", "")
+              ("timer", timeSpanToDisplay TimeSpan.Zero) ]
+            |> List.iter (fun (x, y) -> (document.getElementById x).innerText <- y)
+
+            timeAcc <- TimeSpan.Zero
+
+            (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
+            runningStatus <- RunningStatus.NotStarted
+            printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+        | _ -> ()
+
+    document.getElementById("resetButton").onclick <- reset
+
+    let next event =
+        match runningStatus with
+        | RunningStatus.NotStarted -> start ()
+        | RunningStatus.Running ->
+            let logs = document.getElementById "logs"
+
+            logs.innerHTML <-
+                logs.innerHTML
+                |> (fun x -> Regex.Split(x, "<br>"))
+                |> Array.toList
+                |> List.filter ((<>) "")
+                |> List.rev
+                |> List.append
+                    [ $"""%d{fst (List.head notes)}, %s{timeSpanToDisplay (DateTime.Now - lastTime)}, %s{snd (List.head notes)}""" ]
+                |> List.rev
+                |> String.concat "<br>"
+
+            lastTime <- DateTime.Now
+
+            if List.length notes = 1 then
+                logs.innerHTML <-
+                    logs.innerHTML
+                    |> (fun x -> Regex.Split(x, "<br>"))
+                    |> Array.toList
+                    |> List.filter ((<>) "")
+                    |> List.rev
+                    |> List.append [ $"""TOTAL, %s{document.getElementById("timer").innerText}, END""" ]
+                    |> List.rev
+                    |> String.concat "<br>"
+
+                document.getElementById("currNote").innerText <- ""
+                stop ()
+                (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
+
+                runningStatus <- RunningStatus.Finished
+                printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+            else
+                notes <- List.tail notes
+
+                document.getElementById("currNote").innerText <-
+                    $"""%d{fst (List.head notes)}, %s{snd (List.head notes)}"""
+
+                document.getElementById("nextNote").innerText <-
+                    if List.length notes > 1 then
+                        $"""%d{fst (List.item 1 notes)}, %s{snd (List.item 1 notes)}"""
+                    else
+                        ""
+        | _ -> ()
+
+    document.getElementById("nextButton").onclick <- next
+
+    window.addEventListener (
+        "keydown",
+        fun (event: Event) ->
+            let event = event :?> KeyboardEvent
+            let key = event.key
+            let notesEl = document.getElementById ("notes")
+
+            if document.activeElement = notesEl then
+                if key = "Escape" then notesEl.blur () else ()
+            else
+                printfn "%s" key
+
+                match key with
+                | "Enter" -> start ()
+                | "Escape" -> stop ()
+                | "Delete" -> reset ()
+                | "ArrowRight" -> next ()
+                | "ArrowLeft" -> ()
+                | "\\" ->
+                    notesEl.focus ()
+                    event.preventDefault ()
+                | _ -> ()
+    )
+
+    (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
+
+    [ ("mainButton", "Start watch (Enter)")
+      ("stopButton", "Stop watch (Escape)")
+      ("resetButton", "Reset watch and logs (Delete)")
+      ("prevButton", "Previous note (<)")
+      ("nextButton", "Next note (>)")
+      ("notes", "Type or paste notes to see while speaking or something. (\\)") ]
+    |> List.iter (fun (x, y) -> (document.getElementById x).title <- y)
+
+    [ ("stopButton", true); ("prevButton", true); ("nextButton", true) ]
+    |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
+
+    printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""

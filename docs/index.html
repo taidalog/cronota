@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>cronota</title>
+    <meta charset="utf-8">
+    <meta name="description" content="cronota: A timer with notes.">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- favicon -->
+    <!-- not yet. -->
+    <!-- stylesheet -->
+    <link rel="stylesheet" href="style.css">
+    <!-- script -->
+    <link rel="text/javascript" href="bundle.js">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Zen+Kurenaido&text= !&quot;$%()*+,-./0123456789:=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+Mono:wght@500&text= !&quot;$%()*+,-./0123456789:=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <main>
+        <header>
+            <h1>cronota</h1>
+        </header>
+
+        <div class="timer-container">
+            <span id="timer" class="watch"></span>
+        </div>
+
+        <div id="cribSheetArea" class="crib-sheet-area">
+            <div id="currNote" class="curr"></div>
+            <div id="nextNote" class="next"></div>
+        </div>
+
+        <div class="button-container">
+            <form>
+                <div class="button-container-1">
+                    <button type="button" id="mainButton" class="button-item">Start</button>
+                    <button type="button" id="stopButton" class="button-item">Stop</button>
+                    <button type="button" id="resetButton" class="button-item">Reset</button>
+                </div>
+                <div class="button-container-2">
+                    <button type="button" id="prevButton" class="button-item">&lt; Prev</button>
+                    <button type="button" id="nextButton" class="button-item">Next &gt;</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="io-container">
+            <div class="io-item">
+                <label for="notes">
+                    <h2>notes:</h2>
+                </label>
+                <textarea id="notes" class="notes" autocomplete="off" rows="6"></textarea>
+            </div>
+
+            <div class="io-item">
+                <label for="logs">
+                    <h2>logs:</h2>
+                </label>
+                <div id="logs"></div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <div class="footer-item"><small>&copy; 2023 taidalog</small></div>
+        <div class="footer-item"><small><a href="https://github.com/taidalog/cronota/releases">0.1.0</a></small></div>
+        <div class="footer-item"><small><a href="https://github.com/taidalog/cronota">Repository on GitHub</a></small>
+        </div>
+        <div class="footer-item"><small>Powered by <a id="footerFSharp" href="https://fsharp.org/">F#</a> and <a
+                    id="footerFable" href="https://fable.io">Fable</a>. Thank you!</small></div>
+    </footer>
+
+    <script src="bundle.js"></script>
+</body>
+
+</html>
