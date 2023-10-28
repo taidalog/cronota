@@ -161,13 +161,12 @@ div.io-item {
 textarea.notes {
   width: 94%;
   font-family: sans-serif;
+  padding: 6px;
 }
 
 @media (max-width: 799px) {
   textarea.notes {
-    width: 100%;
-    margin: 0;
-    padding: 0;
+    width: calc(100% - 16px);
   }
 }
 
