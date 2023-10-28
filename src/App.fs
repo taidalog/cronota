@@ -52,9 +52,9 @@ module App =
     let logsTableHeader =
         """
         <tr>
-            <th class="logs-table-no">No.</th>
-            <th class="logs-table-time">Time</th>
-            <th class="logs-table-note">Note</th>
+            <th class="logs-table-no" translate="no">No.</th>
+            <th class="logs-table-time" translate="no">Time</th>
+            <th class="logs-table-note" translate="no">Note</th>
         </tr>
         """
 
