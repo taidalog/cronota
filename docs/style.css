@@ -158,6 +158,19 @@ footer a {
   text-decoration: none;
 }
 
+@media (max-width: 659px) {
+  footer {
+    width: 100%;
+    margin: 0 auto;
+    margin-top: 40px;
+    flex-direction: column;
+  }
+
+  footer div.footer-item {
+    margin: 0 auto;
+  }
+}
+
 /*
     help window
 */
