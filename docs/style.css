@@ -100,8 +100,10 @@ button:not(:disabled) {
   color: #5a919a;
 }
 
-.button-item {
+button.button-item {
   margin: 10px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .io-item label {
