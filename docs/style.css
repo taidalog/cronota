@@ -133,12 +133,29 @@ button.button-item {
   align-items: center;
 }
 
-.io-item label {
+div.io-container {
+  display: flex;
+}
+
+@media (max-width: 659px) {
+  div.io-container {
+    flex-direction: column;
+  }
+}
+
+div.io-item label {
   display: block;
 }
 
-.io-item {
+div.io-item {
   width: 90%;
+}
+
+@media (max-width: 659px) {
+  div.io-item {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }
 
 textarea.notes {
@@ -146,8 +163,12 @@ textarea.notes {
   font-family: sans-serif;
 }
 
-.io-container {
-  display: flex;
+@media (max-width: 659px) {
+  textarea.notes {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
 }
 
 tbody.logs-table th,
@@ -183,7 +204,7 @@ footer a {
   footer {
     width: 100%;
     margin: 0 auto;
-    margin-top: 40px;
+    margin-top: 20px;
     flex-direction: column;
   }
 
