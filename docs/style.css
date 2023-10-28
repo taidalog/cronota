@@ -16,10 +16,6 @@ header {
   justify-content: space-between;
 }
 
-header a {
-  color: #000000;
-}
-
 header div.item {
   margin-top: auto;
 }
@@ -131,4 +127,43 @@ footer {
 footer a {
   color: #5a919a;
   text-decoration: none;
+}
+
+/*
+    help window
+*/
+span.help-button,
+span.help-close {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+div.help-close-outer {
+  width: 100%;
+  text-align: center;
+}
+
+div.help-window {
+  display: none;
+}
+
+div.help-window.active {
+  display: block;
+  background-color: #ffffff;
+  opacity: 0.95;
+  width: fit-content;
+  height: fit-content;
+  max-width: 80%;
+  max-height: 60%;
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  margin: auto;
+  padding: 2rem;
+  box-shadow: 0px 0px 5px 1px #999;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }

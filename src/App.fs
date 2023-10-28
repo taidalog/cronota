@@ -220,10 +220,17 @@ module App =
       ("resetButton", "Reset watch and logs (Delete)")
       ("prevButton", "Previous note (<)")
       ("nextButton", "Next note (>)")
+      ("helpButton", "Help")
+      ("helpClose", "Close help")
       ("notes", "Type or paste notes to see while speaking or something. (\\)") ]
     |> List.iter (fun (x, y) -> (document.getElementById x).title <- y)
 
     [ ("stopButton", true); ("prevButton", true); ("nextButton", true) ]
     |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
+
+    [ "helpButton"; "helpClose" ]
+    |> List.iter (fun x ->
+        (document.getElementById x :?> HTMLButtonElement).onclick <-
+            fun _ -> (document.getElementById "helpWindow").classList.toggle "active" |> ignore)
 
     printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
