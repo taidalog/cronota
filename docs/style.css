@@ -58,17 +58,23 @@ h2 {
   margin-bottom: 10px;
 }
 
-.watch {
+span.watch {
   font-family: 'Noto Sans Mono', monospace;
   font-size: 4rem;
   font-weight: 500;
+}
+
+@media (max-width: 659px) {
+  span.watch {
+    font-size: 2.5rem;
+  }
 }
 
 .crib-sheet-area {
   flex-direction: column;
 }
 
-.curr {
+div.curr {
   color: #65a2ac;
   font-size: 2rem;
   height: 2rem;
@@ -77,12 +83,27 @@ h2 {
   margin-bottom: 0.5rem;
 }
 
-.next {
+@media (max-width: 659px) {
+  div.curr {
+    font-size: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+  }
+}
+
+div.next {
   color: gray;
   height: 2rem;
   line-height: 2rem;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 659px) {
+  div.next {
+    height: 1.5rem;
+    line-height: 1.5rem;
+  }
 }
 
 button {
