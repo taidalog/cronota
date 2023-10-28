@@ -1,6 +1,6 @@
 # cronota
 
-Version 0.1.2
+Version 0.2.0
 
 A stopwatch with notes.
 
@@ -20,7 +20,9 @@ Pasting your notes is recommended because reloading this page erases your notes.
 
 ## Recommended environment
 
-- Mozilla Firefox 119.0 or later.
+- Mozilla Firefox 119.0 (64 bit) or later.
+- Google Chrome 118.0.5993.118 (64 bit) or later.
+- Microsoft Edge 118.0.2088.76 (64 bit) or later.
 
 ## Terms of Service
 

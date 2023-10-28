@@ -1,4 +1,4 @@
-// cronota Version 0.1.2
+// cronota Version 0.2.0
 // https://github.com/taidalog/cronota
 // Copyright (c) 2023 taidalog
 // This software is licensed under the MIT License.
@@ -52,9 +52,9 @@ module App =
     let logsTableHeader =
         """
         <tr>
-            <th class="logs-table-no">No.</th>
-            <th class="logs-table-time">Time</th>
-            <th class="logs-table-note">Note</th>
+            <th class="logs-table-no" translate="no">No.</th>
+            <th class="logs-table-time" translate="no">Time</th>
+            <th class="logs-table-note" translate="no">Note</th>
         </tr>
         """
 
@@ -210,7 +210,7 @@ module App =
             let key = event.key
             printfn "%s" key
 
-            let notesEl = document.getElementById ("notes")
+            let notesEl = document.getElementById ("notes") :?> HTMLInputElement
             let helpWindow = document.getElementById "helpWindow"
 
             let isHelpWindowActive =
@@ -226,7 +226,12 @@ module App =
                 helpWindow.classList.toggle "active" |> ignore
             else
                 match key with
-                | "Enter" -> start ()
+                | "Enter" ->
+                    if notesEl.value = "" then
+                        notesEl.focus ()
+                        event.preventDefault ()
+                    else
+                        start ()
                 | "Escape" -> stop ()
                 | "Delete" -> reset ()
                 | "ArrowRight" -> next ()

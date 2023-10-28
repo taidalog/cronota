@@ -1,5 +1,5 @@
 /*
-    cronota Version 0.1.2
+    cronota Version 0.2.0
     https://github.com/taidalog/cronota
     Copyright (c) 2023 taidalog
     This software is licensed under the MIT License.
@@ -58,17 +58,23 @@ h2 {
   margin-bottom: 10px;
 }
 
-.watch {
+span.watch {
   font-family: 'Noto Sans Mono', monospace;
   font-size: 4rem;
   font-weight: 500;
+}
+
+@media (max-width: 799px) {
+  span.watch {
+    font-size: 2.5rem;
+  }
 }
 
 .crib-sheet-area {
   flex-direction: column;
 }
 
-.curr {
+div.curr {
   color: #65a2ac;
   font-size: 2rem;
   height: 2rem;
@@ -77,12 +83,27 @@ h2 {
   margin-bottom: 0.5rem;
 }
 
-.next {
+@media (max-width: 799px) {
+  div.curr {
+    font-size: 1.5rem;
+    height: 1.5rem;
+    line-height: 1.5rem;
+  }
+}
+
+div.next {
   color: gray;
   height: 2rem;
   line-height: 2rem;
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+@media (max-width: 799px) {
+  div.next {
+    height: 1.5rem;
+    line-height: 1.5rem;
+  }
 }
 
 button {
@@ -96,29 +117,57 @@ button {
   padding: 0.5rem 1rem;
 }
 
+button:disabled {
+  background-color: #fafafa;
+  color: #b4b4b4;
+  cursor: default;
+}
+
 button:not(:disabled) {
   color: #5a919a;
 }
 
-.button-item {
+button.button-item {
   margin: 10px;
+  display: inline-flex;
+  align-items: center;
 }
 
-.io-item label {
+div.io-container {
+  display: flex;
+}
+
+@media (max-width: 799px) {
+  div.io-container {
+    flex-direction: column;
+  }
+}
+
+div.io-item label {
   display: block;
 }
 
-.io-item {
+div.io-item {
   width: 90%;
+}
+
+@media (max-width: 799px) {
+  div.io-item {
+    width: 100%;
+    margin-bottom: 20px;
+  }
 }
 
 textarea.notes {
   width: 94%;
   font-family: sans-serif;
+  padding: 6px;
 }
 
-.io-container {
-  display: flex;
+@media (max-width: 799px) {
+  textarea.notes {
+    width: calc(100% - 16px);
+  }
 }
 
 tbody.logs-table th,
@@ -135,6 +184,16 @@ tbody.logs-table td.logs-table-time {
   padding-right: 1rem;
 }
 
+@media (max-width: 799px) {
+
+  tbody.logs-table th.logs-table-no,
+  tbody.logs-table th.logs-table-time,
+  tbody.logs-table td.logs-table-no,
+  tbody.logs-table td.logs-table-time {
+    padding-right: 0.5rem;
+  }
+}
+
 footer {
   width: 80%;
   max-width: 800px;
@@ -148,6 +207,19 @@ footer {
 footer a {
   color: #5a919a;
   text-decoration: none;
+}
+
+@media (max-width: 799px) {
+  footer {
+    width: 100%;
+    margin: 0 auto;
+    margin-top: 20px;
+    flex-direction: column;
+  }
+
+  footer div.footer-item {
+    margin: 0 auto;
+  }
 }
 
 /*
