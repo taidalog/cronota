@@ -5,6 +5,7 @@ open System.Text.RegularExpressions
 open Browser.Dom
 open Browser.Types
 open Fable.Core
+open Fable.Core.JsInterop
 open Fermata
 
 module App =
@@ -198,6 +199,15 @@ module App =
 
             if document.activeElement = notesEl then
                 if key = "Escape" then notesEl.blur () else ()
+            else if
+                (document.getElementById "helpWindow").classList
+                |> (fun x -> JS.Constructors.Array?from(x))
+                |> Array.contains "active"
+            then
+                if key = "Escape" then
+                    (document.getElementById "helpWindow").classList.toggle "active" |> ignore
+                else
+                    ()
             else
                 printfn "%s" key
 
@@ -221,7 +231,7 @@ module App =
       ("prevButton", "Previous note (<)")
       ("nextButton", "Next note (>)")
       ("helpButton", "Help")
-      ("helpClose", "Close help")
+      ("helpClose", "Close help (Escape)")
       ("notes", "Type or paste notes to see while speaking or something. (\\)") ]
     |> List.iter (fun (x, y) -> (document.getElementById x).title <- y)
 
