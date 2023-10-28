@@ -1,3 +1,8 @@
+// cronota Version 0.1.0
+// https://github.com/taidalog/cronota
+// Copyright (c) 2023 taidalog
+// This software is licensed under the MIT License.
+// https://github.com/taidalog/cronota/blob/main/LICENSE
 namespace Cronota
 
 open System
