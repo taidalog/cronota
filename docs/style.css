@@ -185,6 +185,16 @@ tbody.logs-table td.logs-table-time {
   padding-right: 1rem;
 }
 
+@media (max-width: 659px) {
+
+  tbody.logs-table th.logs-table-no,
+  tbody.logs-table th.logs-table-time,
+  tbody.logs-table td.logs-table-no,
+  tbody.logs-table td.logs-table-time {
+    padding-right: 0.5rem;
+  }
+}
+
 footer {
   width: 80%;
   max-width: 800px;
