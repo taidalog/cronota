@@ -96,6 +96,12 @@ button {
   padding: 0.5rem 1rem;
 }
 
+button:disabled {
+  background-color: #fafafa;
+  color: #b4b4b4;
+  cursor: default;
+}
+
 button:not(:disabled) {
   color: #5a919a;
 }
