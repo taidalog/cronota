@@ -1,7 +1,6 @@
 namespace Cronota
 
 open System
-open System.Text.RegularExpressions
 open Browser.Dom
 open Browser.Types
 open Fable.Core
@@ -45,6 +44,15 @@ module App =
                     document.getElementById("timer").innerText <- timeSpanToDisplay elapsedTime)
                 10
 
+    let logsTableHeader =
+        """
+        <tr>
+            <th class="logs-table-no">No.</th>
+            <th class="logs-table-time">Time</th>
+            <th class="logs-table-note">Note</th>
+        </tr>
+        """
+
     let start event =
         let notesEl = document.getElementById "notes" :?> HTMLInputElement
 
@@ -64,7 +72,7 @@ module App =
                 notes <- notesArray
 
                 (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
-                (document.getElementById "logs").innerHTML <- ""
+                (document.getElementById "logsTable").innerHTML <- logsTableHeader
                 document.getElementById("currNote").innerText <- $"%d{fst (List.head notes)}, %s{snd (List.head notes)}"
 
                 if List.length notes > 1 then
@@ -126,9 +134,10 @@ module App =
         | RunningStatus.Finished ->
             [ ("currNote", "")
               ("nextNote", "")
-              ("logs", "")
               ("timer", timeSpanToDisplay TimeSpan.Zero) ]
             |> List.iter (fun (x, y) -> (document.getElementById x).innerText <- y)
+
+            (document.getElementById "logsTable").innerHTML <- logsTableHeader
 
             timeAcc <- TimeSpan.Zero
 
@@ -143,31 +152,30 @@ module App =
         match runningStatus with
         | RunningStatus.NotStarted -> start ()
         | RunningStatus.Running ->
-            let logs = document.getElementById "logs"
+            let td x y z =
+                $"""
+                <tr>
+                    <td class="logs-table-no">%s{x}</td>
+                    <td class="logs-table-time">%s{y}</td>
+                    <td class="logs-table-note">%s{z}</td>
+                </tr>
+                """
 
-            logs.innerHTML <-
-                logs.innerHTML
-                |> (fun x -> Regex.Split(x, "<br>"))
-                |> Array.toList
-                |> List.filter ((<>) "")
-                |> List.rev
-                |> List.append
-                    [ $"""%d{fst (List.head notes)}, %s{timeSpanToDisplay (DateTime.Now - lastTime)}, %s{snd (List.head notes)}""" ]
-                |> List.rev
-                |> String.concat "<br>"
+            let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
+
+            logsTable.innerHTML <-
+                logsTable.innerHTML
+                + (td
+                    (string (fst (List.head notes)))
+                    (timeSpanToDisplay (DateTime.Now - lastTime))
+                    (snd (List.head notes)))
 
             lastTime <- DateTime.Now
 
             if List.length notes = 1 then
-                logs.innerHTML <-
-                    logs.innerHTML
-                    |> (fun x -> Regex.Split(x, "<br>"))
-                    |> Array.toList
-                    |> List.filter ((<>) "")
-                    |> List.rev
-                    |> List.append [ $"""TOTAL, %s{document.getElementById("timer").innerText}, END""" ]
-                    |> List.rev
-                    |> String.concat "<br>"
+                logsTable.innerHTML <-
+                    logsTable.innerHTML
+                    + (td "TOTAL" (document.getElementById("timer").innerText) "END")
 
                 document.getElementById("currNote").innerText <- ""
                 stop ()
@@ -238,6 +246,8 @@ module App =
 
     [ ("stopButton", true); ("prevButton", true); ("nextButton", true) ]
     |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
+
+    (document.getElementById "logsTable").innerHTML <- logsTableHeader
 
     [ "helpButton"; "helpClose" ]
     |> List.iter (fun x ->

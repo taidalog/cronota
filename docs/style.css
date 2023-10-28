@@ -114,6 +114,20 @@ textarea.notes {
   display: flex;
 }
 
+tbody.logs-table th,
+tbody.logs-table td {
+  font-weight: 400;
+  text-align: left;
+  vertical-align: top;
+}
+
+tbody.logs-table th.logs-table-no,
+tbody.logs-table th.logs-table-time,
+tbody.logs-table td.logs-table-no,
+tbody.logs-table td.logs-table-time {
+  padding-right: 1rem;
+}
+
 footer {
   width: 80%;
   max-width: 800px;
