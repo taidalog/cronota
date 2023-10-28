@@ -7,6 +7,23 @@ body {
   margin: 0;
 }
 
+header {
+  width: 90%;
+  height: 50px;
+  margin: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+header a {
+  color: #000000;
+}
+
+header div.item {
+  margin-top: auto;
+}
+
 main {
   width: 90%;
   margin: 0 auto;
