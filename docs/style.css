@@ -64,7 +64,7 @@ span.watch {
   font-weight: 500;
 }
 
-@media (max-width: 659px) {
+@media (max-width: 799px) {
   span.watch {
     font-size: 2.5rem;
   }
@@ -83,7 +83,7 @@ div.curr {
   margin-bottom: 0.5rem;
 }
 
-@media (max-width: 659px) {
+@media (max-width: 799px) {
   div.curr {
     font-size: 1.5rem;
     height: 1.5rem;
@@ -99,7 +99,7 @@ div.next {
   margin-bottom: 0.5rem;
 }
 
-@media (max-width: 659px) {
+@media (max-width: 799px) {
   div.next {
     height: 1.5rem;
     line-height: 1.5rem;
@@ -137,7 +137,7 @@ div.io-container {
   display: flex;
 }
 
-@media (max-width: 659px) {
+@media (max-width: 799px) {
   div.io-container {
     flex-direction: column;
   }
@@ -151,7 +151,7 @@ div.io-item {
   width: 90%;
 }
 
-@media (max-width: 659px) {
+@media (max-width: 799px) {
   div.io-item {
     width: 100%;
     margin-bottom: 20px;
@@ -163,7 +163,7 @@ textarea.notes {
   font-family: sans-serif;
 }
 
-@media (max-width: 659px) {
+@media (max-width: 799px) {
   textarea.notes {
     width: 100%;
     margin: 0;
@@ -185,7 +185,7 @@ tbody.logs-table td.logs-table-time {
   padding-right: 1rem;
 }
 
-@media (max-width: 659px) {
+@media (max-width: 799px) {
 
   tbody.logs-table th.logs-table-no,
   tbody.logs-table th.logs-table-time,
@@ -210,7 +210,7 @@ footer a {
   text-decoration: none;
 }
 
-@media (max-width: 659px) {
+@media (max-width: 799px) {
   footer {
     width: 100%;
     margin: 0 auto;
