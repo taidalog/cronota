@@ -1,4 +1,4 @@
-// cronota Version 0.1.1
+// cronota Version 0.1.2
 // https://github.com/taidalog/cronota
 // Copyright (c) 2023 taidalog
 // This software is licensed under the MIT License.
