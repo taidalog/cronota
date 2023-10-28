@@ -195,22 +195,23 @@ module App =
         fun (event: Event) ->
             let event = event :?> KeyboardEvent
             let key = event.key
+            printfn "%s" key
+
             let notesEl = document.getElementById ("notes")
+            let helpWindow = document.getElementById "helpWindow"
+
+            let isHelpWindowActive =
+                helpWindow.classList
+                |> (fun x -> JS.Constructors.Array?from(x))
+                |> Array.contains "active"
 
             if document.activeElement = notesEl then
                 if key = "Escape" then notesEl.blur () else ()
-            else if
-                (document.getElementById "helpWindow").classList
-                |> (fun x -> JS.Constructors.Array?from(x))
-                |> Array.contains "active"
-            then
-                if key = "Escape" then
-                    (document.getElementById "helpWindow").classList.toggle "active" |> ignore
-                else
-                    ()
+            else if isHelpWindowActive && key = "Escape" then
+                helpWindow.classList.toggle "active" |> ignore
+            else if not isHelpWindowActive && key = "?" then
+                helpWindow.classList.toggle "active" |> ignore
             else
-                printfn "%s" key
-
                 match key with
                 | "Enter" -> start ()
                 | "Escape" -> stop ()
@@ -230,7 +231,7 @@ module App =
       ("resetButton", "Reset watch and logs (Delete)")
       ("prevButton", "Previous note (<)")
       ("nextButton", "Next note (>)")
-      ("helpButton", "Help")
+      ("helpButton", "Help (?)")
       ("helpClose", "Close help (Escape)")
       ("notes", "Type or paste notes to see while speaking or something. (\\)") ]
     |> List.iter (fun (x, y) -> (document.getElementById x).title <- y)
