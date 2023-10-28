@@ -210,7 +210,7 @@ module App =
             let key = event.key
             printfn "%s" key
 
-            let notesEl = document.getElementById ("notes")
+            let notesEl = document.getElementById ("notes") :?> HTMLInputElement
             let helpWindow = document.getElementById "helpWindow"
 
             let isHelpWindowActive =
@@ -226,7 +226,12 @@ module App =
                 helpWindow.classList.toggle "active" |> ignore
             else
                 match key with
-                | "Enter" -> start ()
+                | "Enter" ->
+                    if notesEl.value = "" then
+                        notesEl.focus ()
+                        event.preventDefault ()
+                    else
+                        start ()
                 | "Escape" -> stop ()
                 | "Delete" -> reset ()
                 | "ArrowRight" -> next ()
