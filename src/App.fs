@@ -27,9 +27,11 @@ module App =
     [<Emit("clearInterval($0)")>]
     let clearInterval (intervalID: int) : unit = jsNative
 
-    let mutable startTime = DateTime.MinValue
+    let mutable startTimeStop = DateTime.MinValue
+    let mutable startTimeNext = DateTime.MinValue
     let mutable intervalId = -1
-    let mutable timeAcc = TimeSpan.Zero
+    let mutable timeAccStop = TimeSpan.Zero
+    let mutable timeAccNext = TimeSpan.Zero
     let mutable lastTime = DateTime.MinValue
     let mutable notes: (int * string) list = []
     let mutable runningStatus = RunningStatus.NotStarted
@@ -45,7 +47,7 @@ module App =
         intervalId <-
             setInterval
                 (fun _ ->
-                    let elapsedTime = DateTime.Now - startTime + timeAcc
+                    let elapsedTime = DateTime.Now - startTimeStop + timeAccStop
                     document.getElementById("timer").innerText <- timeSpanToDisplay elapsedTime)
                 10
 
@@ -73,7 +75,8 @@ module App =
             match runningStatus with
             | RunningStatus.NotStarted
             | RunningStatus.Finished ->
-                timeAcc <- TimeSpan.Zero
+                timeAccStop <- TimeSpan.Zero
+                timeAccNext <- TimeSpan.Zero
                 notes <- notesArray
 
                 (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
@@ -94,8 +97,9 @@ module App =
                 runningStatus <- RunningStatus.Running
                 printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
 
-                startTime <- DateTime.Now
-                lastTime <- startTime
+                startTimeStop <- DateTime.Now
+                startTimeNext <- DateTime.Now
+                lastTime <- startTimeStop
                 countUp ()
             | RunningStatus.Running -> ()
             | RunningStatus.Stopping ->
@@ -107,8 +111,9 @@ module App =
                 runningStatus <- RunningStatus.Running
                 printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
 
-                startTime <- DateTime.Now
-                lastTime <- startTime
+                startTimeStop <- DateTime.Now
+                startTimeNext <- DateTime.Now
+                lastTime <- startTimeStop
                 countUp ()
             | _ -> ()
 
@@ -118,7 +123,8 @@ module App =
         match runningStatus with
         | RunningStatus.Running ->
             clearInterval intervalId
-            timeAcc <- timeAcc + (DateTime.Now - startTime)
+            timeAccStop <- timeAccStop + (DateTime.Now - startTimeStop)
+            timeAccNext <- timeAccNext + (DateTime.Now - startTimeNext)
 
             [ ("notes", false)
               ("mainButton", false)
@@ -144,7 +150,8 @@ module App =
 
             (document.getElementById "logsTable").innerHTML <- logsTableHeader
 
-            timeAcc <- TimeSpan.Zero
+            timeAccStop <- TimeSpan.Zero
+            timeAccNext <- TimeSpan.Zero
 
             (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
             runningStatus <- RunningStatus.NotStarted
@@ -172,10 +179,12 @@ module App =
                 logsTable.innerHTML
                 + (td
                     (string (fst (List.head notes)))
-                    (timeSpanToDisplay (DateTime.Now - lastTime))
+                    (timeSpanToDisplay (timeAccNext + (DateTime.Now - startTimeNext)))
                     (snd (List.head notes)))
 
             lastTime <- DateTime.Now
+            startTimeNext <- DateTime.Now
+            timeAccNext <- TimeSpan.Zero
 
             if List.length notes = 1 then
                 logsTable.innerHTML <-
