@@ -71,6 +71,8 @@ module App =
         if List.length notesArray = 0 then
             notesEl.focus ()
         else
+            let now = DateTime.Now
+
             match runningStatus with
             | RunningStatus.NotStarted
             | RunningStatus.Finished ->
@@ -96,8 +98,8 @@ module App =
                 runningStatus <- RunningStatus.Running
                 printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
 
-                startTimeStop <- DateTime.Now
-                startTimeNext <- DateTime.Now
+                startTimeStop <- now
+                startTimeNext <- now
                 countUp ()
             | RunningStatus.Running -> ()
             | RunningStatus.Stopping ->
@@ -109,8 +111,8 @@ module App =
                 runningStatus <- RunningStatus.Running
                 printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
 
-                startTimeStop <- DateTime.Now
-                startTimeNext <- DateTime.Now
+                startTimeStop <- now
+                startTimeNext <- now
                 countUp ()
             | _ -> ()
 
@@ -119,9 +121,10 @@ module App =
     let stop event =
         match runningStatus with
         | RunningStatus.Running ->
+            let now = DateTime.Now
             clearInterval intervalId
-            timeAccStop <- timeAccStop + (DateTime.Now - startTimeStop)
-            timeAccNext <- timeAccNext + (DateTime.Now - startTimeNext)
+            timeAccStop <- timeAccStop + (now - startTimeStop)
+            timeAccNext <- timeAccNext + (now - startTimeNext)
 
             [ ("notes", false)
               ("mainButton", false)
@@ -170,16 +173,17 @@ module App =
                 </tr>
                 """
 
+            let now = DateTime.Now
             let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
 
             logsTable.innerHTML <-
                 logsTable.innerHTML
                 + (td
                     (string (fst (List.head notes)))
-                    (timeSpanToDisplay (timeAccNext + (DateTime.Now - startTimeNext)))
+                    (timeSpanToDisplay (timeAccNext + (now - startTimeNext)))
                     (snd (List.head notes)))
 
-            startTimeNext <- DateTime.Now
+            startTimeNext <- now
             timeAccNext <- TimeSpan.Zero
 
             if List.length notes = 1 then
