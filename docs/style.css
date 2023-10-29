@@ -1,5 +1,5 @@
 /*
-    cronota Version 0.2.0
+    cronota Version 0.2.1
     https://github.com/taidalog/cronota
     Copyright (c) 2023 taidalog
     This software is licensed under the MIT License.
@@ -233,7 +233,7 @@ span.help-close {
 
 div.help-close-outer {
   width: 100%;
-  text-align: center;
+  text-align: right;
 }
 
 div.help-window {
@@ -255,8 +255,18 @@ div.help-window.active {
   bottom: 0;
   right: 0;
   margin: auto;
-  padding: 2rem;
+  padding: 0.5rem 2rem 2rem 2rem;
   box-shadow: 0px 0px 5px 1px #999;
   overflow-y: auto;
   scrollbar-width: thin;
+}
+
+span.material-symbols-outlined:hover {
+  font-variation-settings:
+    'FILL' 1
+}
+
+span.material-symbols-outlined.help-close:hover {
+  color: #ffffff;
+  background-color: #000000;
 }

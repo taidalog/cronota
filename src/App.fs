@@ -1,4 +1,4 @@
-// cronota Version 0.2.0
+// cronota Version 0.2.1
 // https://github.com/taidalog/cronota
 // Copyright (c) 2023 taidalog
 // This software is licensed under the MIT License.
@@ -27,10 +27,11 @@ module App =
     [<Emit("clearInterval($0)")>]
     let clearInterval (intervalID: int) : unit = jsNative
 
-    let mutable startTime = DateTime.MinValue
+    let mutable startTimeStop = DateTime.MinValue
+    let mutable startTimeNext = DateTime.MinValue
+    let mutable timeAccStop = TimeSpan.Zero
+    let mutable timeAccNext = TimeSpan.Zero
     let mutable intervalId = -1
-    let mutable timeAcc = TimeSpan.Zero
-    let mutable lastTime = DateTime.MinValue
     let mutable notes: (int * string) list = []
     let mutable runningStatus = RunningStatus.NotStarted
 
@@ -45,7 +46,7 @@ module App =
         intervalId <-
             setInterval
                 (fun _ ->
-                    let elapsedTime = DateTime.Now - startTime + timeAcc
+                    let elapsedTime = DateTime.Now - startTimeStop + timeAccStop
                     document.getElementById("timer").innerText <- timeSpanToDisplay elapsedTime)
                 10
 
@@ -70,10 +71,13 @@ module App =
         if List.length notesArray = 0 then
             notesEl.focus ()
         else
+            let now = DateTime.Now
+
             match runningStatus with
             | RunningStatus.NotStarted
             | RunningStatus.Finished ->
-                timeAcc <- TimeSpan.Zero
+                timeAccStop <- TimeSpan.Zero
+                timeAccNext <- TimeSpan.Zero
                 notes <- notesArray
 
                 (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
@@ -94,8 +98,8 @@ module App =
                 runningStatus <- RunningStatus.Running
                 printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
 
-                startTime <- DateTime.Now
-                lastTime <- startTime
+                startTimeStop <- now
+                startTimeNext <- now
                 countUp ()
             | RunningStatus.Running -> ()
             | RunningStatus.Stopping ->
@@ -107,8 +111,8 @@ module App =
                 runningStatus <- RunningStatus.Running
                 printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
 
-                startTime <- DateTime.Now
-                lastTime <- startTime
+                startTimeStop <- now
+                startTimeNext <- now
                 countUp ()
             | _ -> ()
 
@@ -117,8 +121,10 @@ module App =
     let stop event =
         match runningStatus with
         | RunningStatus.Running ->
+            let now = DateTime.Now
             clearInterval intervalId
-            timeAcc <- timeAcc + (DateTime.Now - startTime)
+            timeAccStop <- timeAccStop + (now - startTimeStop)
+            timeAccNext <- timeAccNext + (now - startTimeNext)
 
             [ ("notes", false)
               ("mainButton", false)
@@ -144,7 +150,8 @@ module App =
 
             (document.getElementById "logsTable").innerHTML <- logsTableHeader
 
-            timeAcc <- TimeSpan.Zero
+            timeAccStop <- TimeSpan.Zero
+            timeAccNext <- TimeSpan.Zero
 
             (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
             runningStatus <- RunningStatus.NotStarted
@@ -166,16 +173,18 @@ module App =
                 </tr>
                 """
 
+            let now = DateTime.Now
             let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
 
             logsTable.innerHTML <-
                 logsTable.innerHTML
                 + (td
                     (string (fst (List.head notes)))
-                    (timeSpanToDisplay (DateTime.Now - lastTime))
+                    (timeSpanToDisplay (timeAccNext + (now - startTimeNext)))
                     (snd (List.head notes)))
 
-            lastTime <- DateTime.Now
+            startTimeNext <- now
+            timeAccNext <- TimeSpan.Zero
 
             if List.length notes = 1 then
                 logsTable.innerHTML <-
