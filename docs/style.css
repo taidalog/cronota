@@ -260,3 +260,13 @@ div.help-window.active {
   overflow-y: auto;
   scrollbar-width: thin;
 }
+
+span.material-symbols-outlined:hover {
+  font-variation-settings:
+    'FILL' 1
+}
+
+span.material-symbols-outlined.help-close:hover {
+  color: #ffffff;
+  background-color: #000000;
+}
