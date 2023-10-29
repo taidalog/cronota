@@ -29,9 +29,9 @@ module App =
 
     let mutable startTimeStop = DateTime.MinValue
     let mutable startTimeNext = DateTime.MinValue
-    let mutable intervalId = -1
     let mutable timeAccStop = TimeSpan.Zero
     let mutable timeAccNext = TimeSpan.Zero
+    let mutable intervalId = -1
     let mutable notes: (int * string) list = []
     let mutable runningStatus = RunningStatus.NotStarted
 
