@@ -32,7 +32,6 @@ module App =
     let mutable intervalId = -1
     let mutable timeAccStop = TimeSpan.Zero
     let mutable timeAccNext = TimeSpan.Zero
-    let mutable lastTime = DateTime.MinValue
     let mutable notes: (int * string) list = []
     let mutable runningStatus = RunningStatus.NotStarted
 
@@ -99,7 +98,6 @@ module App =
 
                 startTimeStop <- DateTime.Now
                 startTimeNext <- DateTime.Now
-                lastTime <- startTimeStop
                 countUp ()
             | RunningStatus.Running -> ()
             | RunningStatus.Stopping ->
@@ -113,7 +111,6 @@ module App =
 
                 startTimeStop <- DateTime.Now
                 startTimeNext <- DateTime.Now
-                lastTime <- startTimeStop
                 countUp ()
             | _ -> ()
 
@@ -182,7 +179,6 @@ module App =
                     (timeSpanToDisplay (timeAccNext + (DateTime.Now - startTimeNext)))
                     (snd (List.head notes)))
 
-            lastTime <- DateTime.Now
             startTimeNext <- DateTime.Now
             timeAccNext <- TimeSpan.Zero
 
