@@ -33,7 +33,7 @@ Pasting your notes is recommended because reloading this page erases your notes.
 
 ## Known Issue
 
-- Time can't be logged correctly after stopping the watch and restarting.
+-
 
 ## Release Notes
 
