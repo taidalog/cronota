@@ -126,10 +126,7 @@ module App =
             timeAccStop <- timeAccStop + (now - startTimeStop)
             timeAccNext <- timeAccNext + (now - startTimeNext)
 
-            [ ("notes", false)
-              ("mainButton", false)
-              ("stopButton", true)
-              ("nextButton", true) ]
+            [ ("mainButton", false); ("stopButton", true); ("nextButton", true) ]
             |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
 
             runningStatus <- RunningStatus.Stopping
@@ -193,8 +190,9 @@ module App =
 
                 document.getElementById("currNote").innerText <- ""
                 stop ()
-                (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
 
+                (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
+                (document.getElementById "notes" :?> HTMLInputElement).disabled <- false
                 runningStatus <- RunningStatus.Finished
                 printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
             else
