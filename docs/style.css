@@ -58,6 +58,10 @@ h2 {
   margin-bottom: 10px;
 }
 
+span.material-symbols-outlined.left {
+  margin-right: 0.5rem;
+}
+
 span.watch {
   font-family: 'Noto Sans Mono', monospace;
   font-size: 4rem;
