@@ -160,6 +160,7 @@ module App =
             timeAccNext <- TimeSpan.Zero
 
             (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
+            (document.getElementById "notes" :?> HTMLInputElement).disabled <- false
             runningStatus <- RunningStatus.NotStarted
             printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
         | _ -> ()
