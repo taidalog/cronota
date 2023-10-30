@@ -147,6 +147,26 @@ button.button-item.right {
   padding-left: 2.5rem;
 }
 
+@media (max-width: 799px) {
+  button {
+    width: 7rem;
+  }
+
+  button.button-item {
+    margin: 5px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  button.button-item.left {
+    padding-left: 1rem;
+  }
+
+  button.button-item.right {
+    padding-left: 2rem;
+  }
+}
+
 div.io-container {
   display: flex;
 }
