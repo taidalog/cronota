@@ -1,4 +1,4 @@
-// cronota Version 0.2.1
+// cronota Version 0.3.0
 // https://github.com/taidalog/cronota
 // Copyright (c) 2023 taidalog
 // This software is licensed under the MIT License.
@@ -92,7 +92,10 @@ module App =
 
                 notesEl.disabled <- true
 
-                [ ("mainButton", true); ("stopButton", false); ("nextButton", false) ]
+                [ ("mainButton", true)
+                  ("stopButton", false)
+                  ("cutinButton", false)
+                  ("nextButton", false) ]
                 |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
 
                 runningStatus <- RunningStatus.Running
@@ -105,7 +108,10 @@ module App =
             | RunningStatus.Stopping ->
                 notesEl.disabled <- true
 
-                [ ("mainButton", true); ("stopButton", false); ("nextButton", false) ]
+                [ ("mainButton", true)
+                  ("stopButton", false)
+                  ("cutinButton", false)
+                  ("nextButton", false) ]
                 |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
 
                 runningStatus <- RunningStatus.Running
@@ -126,9 +132,9 @@ module App =
             timeAccStop <- timeAccStop + (now - startTimeStop)
             timeAccNext <- timeAccNext + (now - startTimeNext)
 
-            [ ("notes", false)
-              ("mainButton", false)
+            [ ("mainButton", false)
               ("stopButton", true)
+              ("cutinButton", true)
               ("nextButton", true) ]
             |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
 
@@ -154,6 +160,7 @@ module App =
             timeAccNext <- TimeSpan.Zero
 
             (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
+            (document.getElementById "notes" :?> HTMLInputElement).disabled <- false
             runningStatus <- RunningStatus.NotStarted
             printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
         | _ -> ()
@@ -193,8 +200,9 @@ module App =
 
                 document.getElementById("currNote").innerText <- ""
                 stop ()
-                (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
 
+                (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
+                (document.getElementById "notes" :?> HTMLInputElement).disabled <- false
                 runningStatus <- RunningStatus.Finished
                 printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
             else
@@ -211,6 +219,43 @@ module App =
         | _ -> ()
 
     document.getElementById("nextButton").onclick <- next
+
+    let cutin event =
+        match runningStatus with
+        | RunningStatus.Running ->
+            let td x y z =
+                $"""
+                <tr>
+                    <td class="logs-table-no">%s{x}</td>
+                    <td class="logs-table-time">%s{y}</td>
+                    <td class="logs-table-note">%s{z}</td>
+                </tr>
+                """
+
+            let now = DateTime.Now
+            let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
+
+            logsTable.innerHTML <-
+                logsTable.innerHTML
+                + (td
+                    (string (fst (List.head notes)))
+                    (timeSpanToDisplay (timeAccNext + (now - startTimeNext)))
+                    "CUT_IN")
+
+            startTimeNext <- now
+            timeAccNext <- TimeSpan.Zero
+
+            notes <- notes |> List.map (fun (i, x) -> i + 1, x)
+            document.getElementById("currNote").innerText <- $"""%d{fst (List.head notes)}, %s{snd (List.head notes)}"""
+
+            document.getElementById("nextNote").innerText <-
+                if List.length notes > 1 then
+                    $"""%d{fst (List.item 1 notes)}, %s{snd (List.item 1 notes)}"""
+                else
+                    ""
+        | _ -> ()
+
+    document.getElementById("cutinButton").onclick <- cutin
 
     window.addEventListener (
         "keydown",
@@ -245,6 +290,7 @@ module App =
                 | "Delete" -> reset ()
                 | "ArrowRight" -> next ()
                 | "ArrowLeft" -> ()
+                | "@" -> cutin ()
                 | "\\" ->
                     notesEl.focus ()
                     event.preventDefault ()
@@ -257,13 +303,17 @@ module App =
       ("stopButton", "Stop watch (Escape)")
       ("resetButton", "Reset watch and logs (Delete)")
       ("prevButton", "Previous note (<)")
+      ("cutinButton", "Cut in (@)")
       ("nextButton", "Next note (>)")
       ("helpButton", "Help (?)")
       ("helpClose", "Close help (Escape)")
       ("notes", "Type or paste notes to see while speaking or something. (\\)") ]
     |> List.iter (fun (x, y) -> (document.getElementById x).title <- y)
 
-    [ ("stopButton", true); ("prevButton", true); ("nextButton", true) ]
+    [ ("stopButton", true)
+      ("prevButton", true)
+      ("cutinButton", true)
+      ("nextButton", true) ]
     |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
 
     (document.getElementById "logsTable").innerHTML <- logsTableHeader

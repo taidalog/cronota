@@ -1,5 +1,5 @@
 /*
-    cronota Version 0.2.1
+    cronota Version 0.3.0
     https://github.com/taidalog/cronota
     Copyright (c) 2023 taidalog
     This software is licensed under the MIT License.
@@ -58,6 +58,10 @@ h2 {
   margin-bottom: 10px;
 }
 
+span.material-symbols-outlined.left {
+  margin-right: 0.5rem;
+}
+
 span.watch {
   font-family: 'Noto Sans Mono', monospace;
   font-size: 4rem;
@@ -114,7 +118,9 @@ button {
   -moz-appearance: none;
   cursor: pointer;
   font-size: 1rem;
-  padding: 0.5rem 1rem;
+  /*padding: 0.5rem 1rem;*/
+  width: 8rem;
+  height: 2.5rem;
 }
 
 button:disabled {
@@ -131,6 +137,14 @@ button.button-item {
   margin: 10px;
   display: inline-flex;
   align-items: center;
+}
+
+button.button-item.left {
+  padding-left: 1.5rem;
+}
+
+button.button-item.right {
+  padding-left: 2.5rem;
 }
 
 div.io-container {
