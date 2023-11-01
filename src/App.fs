@@ -74,6 +74,15 @@ module App =
         let ms = timeSpan.Milliseconds |> string |> String.padLeft 3 '0'
         $"%s{h}:%s{m}:%s{s}.%s{ms}"
 
+    let td x y z =
+        $"""
+        <tr>
+            <td class="logs-table-no">%s{x}</td>
+            <td class="logs-table-time">%s{y}</td>
+            <td class="logs-table-note">%s{z}</td>
+        </tr>
+        """
+
     let countUp () =
         let intervalId =
             setInterval
@@ -226,15 +235,6 @@ module App =
         match state.RunningStatus with
         | RunningStatus.NotStarted -> start ()
         | RunningStatus.Running ->
-            let td x y z =
-                $"""
-                <tr>
-                    <td class="logs-table-no">%s{x}</td>
-                    <td class="logs-table-time">%s{y}</td>
-                    <td class="logs-table-note">%s{z}</td>
-                </tr>
-                """
-
             let now = DateTime.Now
             let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
 
@@ -287,15 +287,6 @@ module App =
     let cutin event =
         match state.RunningStatus with
         | RunningStatus.Running ->
-            let td x y z =
-                $"""
-                <tr>
-                    <td class="logs-table-no">%s{x}</td>
-                    <td class="logs-table-time">%s{y}</td>
-                    <td class="logs-table-note">%s{z}</td>
-                </tr>
-                """
-
             let now = DateTime.Now
             let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
 
