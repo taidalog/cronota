@@ -36,6 +36,22 @@ module App =
     [<Emit("clearInterval($0)")>]
     let clearInterval (intervalID: int) : unit = jsNative
 
+    let transfer (transferor: 'T list -> 'T list * 'T list) (list: 'T list * 'T list) : 'T list * 'T list =
+        let fh, sh = list
+        let fh1, fh2 = transferor fh
+        fh1, fh2 @ sh
+
+    let transferBack (transferor: 'T list -> 'T list * 'T list) (list: 'T list * 'T list) : 'T list * 'T list =
+        let fh, sh = list
+        let sh1, sh2 = transferor sh
+        fh @ sh1, sh2
+
+    let nextNotes (notes: 'T list * 'T list) =
+        transferBack (fun list -> [ List.head list ], List.tail list) notes
+
+    let prevNotes (notes: 'T list * 'T list) =
+        transfer (fun list -> (List.rev >> List.tail >> List.rev) list, [ List.last list ]) notes
+
     let mutable state =
         { Stop =
             { StartTime = DateTime.MinValue
