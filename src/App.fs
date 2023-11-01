@@ -25,7 +25,7 @@ module App =
         { Stop: TimeAcc
           Next: TimeAcc
           IntervalId: int
-          Notes: (int * string) list * (int * string) list
+          Notes: (int * string) list
           RunningStatus: RunningStatus }
 
     let status = [ "NotStarted"; "Running"; "Stopping"; ""; "Finished" ]
