@@ -19,6 +19,15 @@ module App =
         | Stopping = 2
         | Finished = 4
 
+    type TimeAcc = { StartTime: DateTime; Acc: TimeSpan }
+
+    type State =
+        { Stop: TimeAcc
+          Next: TimeAcc
+          IntervalId: int
+          Notes: (int * string) list * (int * string) list
+          RunningStatus: RunningStatus }
+
     let status = [ "NotStarted"; "Running"; "Stopping"; ""; "Finished" ]
 
     [<Emit("setInterval($0, $1)")>]
