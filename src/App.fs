@@ -21,11 +21,15 @@ module App =
 
     type TimeAcc = { StartTime: DateTime; Acc: TimeSpan }
 
+    type Notes =
+        { Finished: (int * string) list
+          NotFinished: (int * string) list }
+
     type State =
         { Stop: TimeAcc
           Next: TimeAcc
           IntervalId: int
-          Notes: (int * string) list
+          Notes: Notes
           RunningStatus: RunningStatus }
 
     let status = [ "NotStarted"; "Running"; "Stopping"; ""; "Finished" ]
@@ -60,7 +64,7 @@ module App =
             { StartTime = DateTime.MinValue
               Acc = TimeSpan.Zero }
           IntervalId = -1
-          Notes = []
+          Notes = { Finished = []; NotFinished = [] }
           RunningStatus = RunningStatus.NotStarted }
 
     let timeSpanToDisplay (timeSpan: TimeSpan) =
@@ -116,18 +120,20 @@ module App =
                             { state.Next with
                                 StartTime = now
                                 Acc = TimeSpan.Zero }
-                        Notes = notesArray
+                        Notes =
+                            { state.Notes with
+                                NotFinished = notesArray }
                         RunningStatus = RunningStatus.Running }
 
                 (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
                 (document.getElementById "logsTable").innerHTML <- logsTableHeader
 
                 document.getElementById("currNote").innerText <-
-                    $"%d{fst (List.head state.Notes)}, %s{snd (List.head state.Notes)}"
+                    $"%d{fst (List.head state.Notes.NotFinished)}, %s{snd (List.head state.Notes.NotFinished)}"
 
-                if List.length state.Notes > 1 then
+                if List.length state.Notes.NotFinished > 1 then
                     document.getElementById("nextNote").innerText <-
-                        $"%d{fst (List.item 1 state.Notes)}, %s{snd (List.item 1 state.Notes)}"
+                        $"%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"
                 else
                     ()
 
@@ -235,15 +241,15 @@ module App =
             logsTable.innerHTML <-
                 logsTable.innerHTML
                 + (td
-                    (string (fst (List.head state.Notes)))
+                    (string (fst (List.head state.Notes.NotFinished)))
                     (timeSpanToDisplay (state.Next.Acc + (now - state.Next.StartTime)))
-                    (snd (List.head state.Notes)))
+                    (snd (List.head state.Notes.NotFinished)))
 
             state <-
                 { state with
                     Next = { StartTime = now; Acc = TimeSpan.Zero } }
 
-            if List.length state.Notes = 1 then
+            if List.length state.Notes.NotFinished = 1 then
                 logsTable.innerHTML <-
                     logsTable.innerHTML
                     + (td "TOTAL" (document.getElementById("timer").innerText) "END")
@@ -262,14 +268,16 @@ module App =
             else
                 state <-
                     { state with
-                        Notes = List.tail state.Notes }
+                        Notes =
+                            { Finished = state.Notes.Finished @ [ List.head state.Notes.NotFinished ]
+                              NotFinished = List.tail state.Notes.NotFinished } }
 
                 document.getElementById("currNote").innerText <-
-                    $"""%d{fst (List.head state.Notes)}, %s{snd (List.head state.Notes)}"""
+                    $"""%d{fst (List.head state.Notes.NotFinished)}, %s{snd (List.head state.Notes.NotFinished)}"""
 
                 document.getElementById("nextNote").innerText <-
-                    if List.length state.Notes > 1 then
-                        $"""%d{fst (List.item 1 state.Notes)}, %s{snd (List.item 1 state.Notes)}"""
+                    if List.length state.Notes.NotFinished > 1 then
+                        $"""%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"""
                     else
                         ""
         | _ -> ()
@@ -294,21 +302,23 @@ module App =
             logsTable.innerHTML <-
                 logsTable.innerHTML
                 + (td
-                    (string (fst (List.head state.Notes)))
+                    (string (fst (List.head state.Notes.NotFinished)))
                     (timeSpanToDisplay (state.Next.Acc + (now - state.Next.StartTime)))
                     "CUT_IN")
 
             state <-
                 { state with
                     Next = { StartTime = now; Acc = TimeSpan.Zero }
-                    Notes = state.Notes |> List.map (fun (i, x) -> i + 1, x) }
+                    Notes =
+                        { state.Notes with
+                            NotFinished = state.Notes.NotFinished |> List.map (fun (i, x) -> i + 1, x) } }
 
             document.getElementById("currNote").innerText <-
-                $"""%d{fst (List.head state.Notes)}, %s{snd (List.head state.Notes)}"""
+                $"""%d{fst (List.head state.Notes.NotFinished)}, %s{snd (List.head state.Notes.NotFinished)}"""
 
             document.getElementById("nextNote").innerText <-
-                if List.length state.Notes > 1 then
-                    $"""%d{fst (List.item 1 state.Notes)}, %s{snd (List.item 1 state.Notes)}"""
+                if List.length state.Notes.NotFinished > 1 then
+                    $"""%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"""
                 else
                     ""
         | _ -> ()
