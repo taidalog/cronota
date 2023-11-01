@@ -24,7 +24,7 @@ module App =
     type State =
         { Stop: TimeAcc
           Next: TimeAcc
-          IntervalId: int
+          mutable IntervalId: int
           Notes: (int * string) list
           RunningStatus: RunningStatus }
 
