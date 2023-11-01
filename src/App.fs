@@ -24,7 +24,7 @@ module App =
     type State =
         { Stop: TimeAcc
           Next: TimeAcc
-          mutable IntervalId: int
+          IntervalId: int
           Notes: (int * string) list
           RunningStatus: RunningStatus }
 
@@ -55,12 +55,14 @@ module App =
         $"%s{h}:%s{m}:%s{s}.%s{ms}"
 
     let countUp () =
-        state.IntervalId <-
+        let intervalId =
             setInterval
                 (fun _ ->
                     let elapsedTime = DateTime.Now - state.Stop.StartTime + state.Stop.Acc
                     document.getElementById("timer").innerText <- timeSpanToDisplay elapsedTime)
                 10
+
+        state <- { state with IntervalId = intervalId }
 
     let logsTableHeader =
         """
