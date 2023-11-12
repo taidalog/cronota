@@ -56,6 +56,17 @@ module App =
     let prevNotes (notes: 'T list * 'T list) =
         transfer (fun list -> (List.rev >> List.tail >> List.rev) list, [ List.last list ]) notes
 
+    let initState =
+        { Stop =
+            { StartTime = DateTime.MinValue
+              Acc = TimeSpan.Zero }
+          Next =
+            { StartTime = DateTime.MinValue
+              Acc = TimeSpan.Zero }
+          IntervalId = -1
+          Notes = { Finished = []; NotFinished = [] }
+          RunningStatus = RunningStatus.NotStarted }
+
     let mutable state =
         { Stop =
             { StartTime = DateTime.MinValue
@@ -120,17 +131,17 @@ module App =
             | RunningStatus.NotStarted
             | RunningStatus.Finished ->
                 state <-
-                    { state with
+                    { initState with
                         Stop =
-                            { state.Stop with
+                            { initState.Stop with
                                 StartTime = now
                                 Acc = TimeSpan.Zero }
                         Next =
-                            { state.Next with
+                            { initState.Next with
                                 StartTime = now
                                 Acc = TimeSpan.Zero }
                         Notes =
-                            { state.Notes with
+                            { initState.Notes with
                                 NotFinished = notesArray }
                         RunningStatus = RunningStatus.Running }
 
