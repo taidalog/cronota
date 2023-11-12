@@ -161,6 +161,7 @@ module App =
 
                 [ ("mainButton", true)
                   ("stopButton", false)
+                  ("prevButton", true)
                   ("cutinButton", false)
                   ("nextButton", false) ]
                 |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
@@ -294,8 +295,8 @@ module App =
                     else
                         ""
 
-            (document.getElementById "prevButton" :?> HTMLButtonElement).disabled <-
-                List.length state.Notes.Finished = 0
+                (document.getElementById "prevButton" :?> HTMLButtonElement).disabled <-
+                    List.length state.Notes.Finished = 0
         | _ -> ()
 
     document.getElementById("nextButton").onclick <- next
