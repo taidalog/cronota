@@ -295,6 +295,48 @@ module App =
 
     document.getElementById("nextButton").onclick <- next
 
+    let prev event =
+        match state.RunningStatus with
+        | RunningStatus.Running ->
+            printfn "List.length state.Notes.Finished: %d" (List.length state.Notes.Finished)
+
+            if List.length state.Notes.Finished = 0 then
+                ()
+            else
+                let now = DateTime.Now
+                let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
+
+                logsTable.innerHTML <-
+                    logsTable.innerHTML
+                    + (td
+                        (string (fst (List.last state.Notes.Finished)))
+                        (timeSpanToDisplay (state.Next.Acc + (now - state.Next.StartTime)))
+                        (snd (List.last state.Notes.Finished)))
+
+                state <-
+                    { state with
+                        Next = { StartTime = now; Acc = TimeSpan.Zero }
+                        Notes =
+                            { Finished = (List.rev >> List.tail >> List.rev) state.Notes.Finished
+                              NotFinished = List.head state.Notes.Finished :: state.Notes.NotFinished } }
+
+                document.getElementById("currNote").innerText <-
+                    $"""%d{fst (List.last state.Notes.Finished)}, %s{snd (List.last state.Notes.Finished)}"""
+
+                document.getElementById("nextNote").innerText <-
+                    if List.length state.Notes.NotFinished > 1 then
+                        $"""%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"""
+                    else
+                        ""
+
+                (document.getElementById "prevButton" :?> HTMLButtonElement).disabled <-
+                    List.length state.Notes.Finished = 0
+
+                printfn "%s" $"""runningStatus: %s{List.item (int state.RunningStatus) status}"""
+        | _ -> ()
+
+    document.getElementById("prevButton").onclick <- prev
+
     let cutin event =
         match state.RunningStatus with
         | RunningStatus.Running ->
@@ -359,7 +401,7 @@ module App =
                 | "Escape" -> stop ()
                 | "Delete" -> reset ()
                 | "ArrowRight" -> next ()
-                | "ArrowLeft" -> ()
+                | "ArrowLeft" -> prev ()
                 | "@" -> cutin ()
                 | "\\" ->
                     notesEl.focus ()
