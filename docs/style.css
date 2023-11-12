@@ -8,6 +8,7 @@
 html {
   font-family: 'Noto Sans JP', sans-serif;
   font-weight: 400;
+  color: #444444;
 }
 
 body {
@@ -229,6 +230,7 @@ tbody.logs-table td.logs-table-time {
 }
 
 footer {
+  color: #888888;
   width: 80%;
   max-width: 800px;
   margin: 20px auto;
@@ -239,8 +241,12 @@ footer {
 }
 
 footer a {
-  color: #5a919a;
+  color: #447f88;
   text-decoration: none;
+}
+
+footer a:visited {
+  color: #754488;
 }
 
 @media (max-width: 799px) {
