@@ -173,6 +173,7 @@ module App =
 
                 [ ("mainButton", true)
                   ("stopButton", false)
+                  ("prevButton", List.length state.Notes.Finished = 0)
                   ("cutinButton", false)
                   ("nextButton", false) ]
                 |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
@@ -207,6 +208,7 @@ module App =
 
             [ ("mainButton", false)
               ("stopButton", true)
+              ("prevButton", true)
               ("cutinButton", true)
               ("nextButton", true) ]
             |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
@@ -291,6 +293,9 @@ module App =
                         $"""%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"""
                     else
                         ""
+
+            (document.getElementById "prevButton" :?> HTMLButtonElement).disabled <-
+                List.length state.Notes.Finished = 0
         | _ -> ()
 
     document.getElementById("nextButton").onclick <- next
