@@ -324,10 +324,10 @@ module App =
                         Next = { StartTime = now; Acc = TimeSpan.Zero }
                         Notes =
                             { Finished = (List.rev >> List.tail >> List.rev) state.Notes.Finished
-                              NotFinished = List.head state.Notes.Finished :: state.Notes.NotFinished } }
+                              NotFinished = List.last state.Notes.Finished :: state.Notes.NotFinished } }
 
                 document.getElementById("currNote").innerText <-
-                    $"""%d{fst (List.last state.Notes.Finished)}, %s{snd (List.last state.Notes.Finished)}"""
+                    $"""%d{fst (List.head state.Notes.NotFinished)}, %s{snd (List.head state.Notes.NotFinished)}"""
 
                 document.getElementById("nextNote").innerText <-
                     if List.length state.Notes.NotFinished > 1 then
