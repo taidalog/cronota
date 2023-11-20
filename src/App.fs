@@ -417,15 +417,15 @@ module App =
 
     (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
 
-    [ ("mainButton", "Start watch (Enter)")
-      ("stopButton", "Stop watch (Escape)")
-      ("resetButton", "Reset watch and logs (Delete)")
-      ("prevButton", "Previous note (<)")
-      ("cutinButton", "Cut in (@)")
-      ("nextButton", "Next note (>)")
-      ("helpButton", "Help (?)")
-      ("helpClose", "Close help (Escape)")
-      ("notes", "Type or paste notes to see while speaking or something. (\\)") ]
+    [ ("mainButton", "開始 (Enter)")
+      ("stopButton", "停止 (Escape)")
+      ("resetButton", "リセット (Delete)")
+      ("prevButton", "戻る (<)")
+      ("cutinButton", "割り込み (@)")
+      ("nextButton", "次へ (>)")
+      ("helpButton", "ヘルプ (?)")
+      ("helpClose", "閉じる (Escape)")
+      ("notes", "「ノート」を入力するか貼り付けてください (\\)") ]
     |> List.iter (fun (x, y) -> (document.getElementById x).title <- y)
 
     [ ("stopButton", true)

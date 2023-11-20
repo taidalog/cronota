@@ -34,7 +34,7 @@
     <!-- OGP -->
     <meta property="og:type" content="website" />
     <meta property="og:title" content="cronota" />
-    <meta property="og:description" content="cronota: A stopwatch with notes." />
+    <meta property="og:description" content="cronota: a stopwatch with notes." />
     <meta property="og:url" content="http://taidalog.github.io/cronota/" />
     <meta property="og:site_name" content="cronota" />
     <meta property="og:image"
@@ -129,10 +129,28 @@
                     close
                 </span>
             </div>
-            <p><span translate="no">cronota</span>: A stopwatch with notes.</p>
-            <p>Type or paste your "notes" to see while speaking, then click "Start" button to start the stopwatch.<br>
-                Each line from your notes and the time you spend for it will be logged by clicking "Next" button.</p>
-            <p>Pasting your notes is recommended because reloading this page erases your notes.</p>
+            <p><span translate="no">cronota</span>: a stopwatch with notes.</p>
+            <p>
+                メモを見ながら時間を計るためのストップウォッチです。スピーチや面接の練習などに使えると思います。<br>
+            </p>
+            <p>
+                使い方
+            <ol>
+                <li><span translate="no">&quot;notes&quot;</span> にメモを入力するか、別の場所（メモ帳など）からコピーして貼り付ける。</li>
+                <li><span translate="no">Start</span>ボタンを押す。そうするとストップウォッチが起動し、<span
+                        translate="no">&quot;notes&quot;</span> の1行目と2行目がストップウォッチの下に表示される。</li>
+                <li><span translate="no">Next</span>ボタンを押す。そうすると、そこまでの経過時間と1行目の内容が <span
+                        translate="no">&quot;logs&quot;</span> に記録され、<span translate="no">&quot;notes&quot;</span>
+                    の2行目と3行目がストップウォッチの下に表示される。</li>
+                <li>再び<span translate="no">Next</span>ボタンを押す。そうすると、前回の<span translate="no">Next</span>ボタンからの経過時間と2行目の内容が
+                    <span translate="no">&quot;logs&quot;</span> に記録される。以降、<span translate="no">&quot;notes&quot;</span>
+                    の行数だけ繰り返す。
+                </li>
+            </ol>
+            </p>
+            <p>
+                ページを更新するとノートが消えるので、あらかじめ別の場所に入力しておいたものを貼り付けることをおすすめします。
+            </p>
         </div>
     </main>
     <footer>
