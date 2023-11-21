@@ -2,6 +2,8 @@
 
 Version 0.3.1
 
+[Japanese README](README.ja.md)
+
 A stopwatch with notes.
 
 ## Features
@@ -13,10 +15,22 @@ A stopwatch with notes.
 
 1. Visit [cronota](https://taidalog.github.io/cronota/).
 1. Type or paste your "notes" to see while speaking.
-1. Click "Start" button to start the stopwatch.
-1. Click "Next" button, then a line from your notes and the time you spend for it will be logged.
+1. Click "Start" button to start the stopwatch, and the first and second lines from your note will be displayed below the watch.
+1. Click "Next" button, then the first line and the time you spend for it will be logged, and the second and third lines will be displayed below the watch.
+1. Click "Next" button again, then the second line and the time you spend for it since last time you clicked "Next" will be logged, and next lines will be displayed. These processes will be repeated for each line.
 
 Pasting your notes is recommended because reloading this page erases your notes.
+
+## Buttons
+
+| Button | Key      | Functionality                                                                                                                               |
+| ------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Start  | `Enter`  | Starts the stopwatch.                                                                                                                       |
+| Stop   | `Escape` | Stops the stopwatch.<br>Clicking Start button restarts the stopwatch.                                                                       |
+| Reset  | `Delete` | Stops the stopwatch while the stopwatch is running.<br>Resets the stopwatch and logs while the stopwatch is stopped.                        |
+| Next   | `>`      | Records the current line and time passed since Start or last Stop into "logs", then displays next line below the stopwatch.                 |
+| Prev   | `<`      | Displays the last note again.                                                                                                               |
+| Cut in | `@`      | Records a text "CUT_IN" and time passed since Start button or Stop button was clicked.<br>The note below the stopwatch will not be updated. |
 
 ## Recommended environment
 
