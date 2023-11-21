@@ -1,4 +1,4 @@
-// cronota Version 0.3.1
+// cronota Version 1.0.0
 // https://github.com/taidalog/cronota
 // Copyright (c) 2023 taidalog
 // This software is licensed under the MIT License.
@@ -19,6 +19,19 @@ module App =
         | Stopping = 2
         | Finished = 4
 
+    type TimeAcc = { StartTime: DateTime; Acc: TimeSpan }
+
+    type Notes =
+        { Finished: (int * string) list
+          NotFinished: (int * string) list }
+
+    type State =
+        { Stop: TimeAcc
+          Next: TimeAcc
+          IntervalId: int
+          Notes: Notes
+          RunningStatus: RunningStatus }
+
     let status = [ "NotStarted"; "Running"; "Stopping"; ""; "Finished" ]
 
     [<Emit("setInterval($0, $1)")>]
@@ -27,13 +40,43 @@ module App =
     [<Emit("clearInterval($0)")>]
     let clearInterval (intervalID: int) : unit = jsNative
 
-    let mutable startTimeStop = DateTime.MinValue
-    let mutable startTimeNext = DateTime.MinValue
-    let mutable timeAccStop = TimeSpan.Zero
-    let mutable timeAccNext = TimeSpan.Zero
-    let mutable intervalId = -1
-    let mutable notes: (int * string) list = []
-    let mutable runningStatus = RunningStatus.NotStarted
+    let transfer (transferor: 'T list -> 'T list * 'T list) (list: 'T list * 'T list) : 'T list * 'T list =
+        let fh, sh = list
+        let fh1, fh2 = transferor fh
+        fh1, fh2 @ sh
+
+    let transferBack (transferor: 'T list -> 'T list * 'T list) (list: 'T list * 'T list) : 'T list * 'T list =
+        let fh, sh = list
+        let sh1, sh2 = transferor sh
+        fh @ sh1, sh2
+
+    let nextNotes (notes: 'T list * 'T list) =
+        transferBack (fun list -> [ List.head list ], List.tail list) notes
+
+    let prevNotes (notes: 'T list * 'T list) =
+        transfer (fun list -> (List.rev >> List.tail >> List.rev) list, [ List.last list ]) notes
+
+    let initState =
+        { Stop =
+            { StartTime = DateTime.MinValue
+              Acc = TimeSpan.Zero }
+          Next =
+            { StartTime = DateTime.MinValue
+              Acc = TimeSpan.Zero }
+          IntervalId = -1
+          Notes = { Finished = []; NotFinished = [] }
+          RunningStatus = RunningStatus.NotStarted }
+
+    let mutable state =
+        { Stop =
+            { StartTime = DateTime.MinValue
+              Acc = TimeSpan.Zero }
+          Next =
+            { StartTime = DateTime.MinValue
+              Acc = TimeSpan.Zero }
+          IntervalId = -1
+          Notes = { Finished = []; NotFinished = [] }
+          RunningStatus = RunningStatus.NotStarted }
 
     let timeSpanToDisplay (timeSpan: TimeSpan) =
         let h = timeSpan.Hours |> string |> String.padLeft 2 '0'
@@ -42,13 +85,24 @@ module App =
         let ms = timeSpan.Milliseconds |> string |> String.padLeft 3 '0'
         $"%s{h}:%s{m}:%s{s}.%s{ms}"
 
+    let td x y z =
+        $"""
+        <tr>
+            <td class="logs-table-no">%s{x}</td>
+            <td class="logs-table-time">%s{y}</td>
+            <td class="logs-table-note">%s{z}</td>
+        </tr>
+        """
+
     let countUp () =
-        intervalId <-
+        let intervalId =
             setInterval
                 (fun _ ->
-                    let elapsedTime = DateTime.Now - startTimeStop + timeAccStop
+                    let elapsedTime = DateTime.Now - state.Stop.StartTime + state.Stop.Acc
                     document.getElementById("timer").innerText <- timeSpanToDisplay elapsedTime)
                 10
+
+        state <- { state with IntervalId = intervalId }
 
     let logsTableHeader =
         """
@@ -73,20 +127,33 @@ module App =
         else
             let now = DateTime.Now
 
-            match runningStatus with
+            match state.RunningStatus with
             | RunningStatus.NotStarted
             | RunningStatus.Finished ->
-                timeAccStop <- TimeSpan.Zero
-                timeAccNext <- TimeSpan.Zero
-                notes <- notesArray
+                state <-
+                    { initState with
+                        Stop =
+                            { initState.Stop with
+                                StartTime = now
+                                Acc = TimeSpan.Zero }
+                        Next =
+                            { initState.Next with
+                                StartTime = now
+                                Acc = TimeSpan.Zero }
+                        Notes =
+                            { initState.Notes with
+                                NotFinished = notesArray }
+                        RunningStatus = RunningStatus.Running }
 
                 (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
                 (document.getElementById "logsTable").innerHTML <- logsTableHeader
-                document.getElementById("currNote").innerText <- $"%d{fst (List.head notes)}, %s{snd (List.head notes)}"
 
-                if List.length notes > 1 then
+                document.getElementById("currNote").innerText <-
+                    $"%d{fst (List.head state.Notes.NotFinished)}, %s{snd (List.head state.Notes.NotFinished)}"
+
+                if List.length state.Notes.NotFinished > 1 then
                     document.getElementById("nextNote").innerText <-
-                        $"%d{fst (List.item 1 notes)}, %s{snd (List.item 1 notes)}"
+                        $"%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"
                 else
                     ()
 
@@ -94,15 +161,12 @@ module App =
 
                 [ ("mainButton", true)
                   ("stopButton", false)
+                  ("prevButton", true)
                   ("cutinButton", false)
                   ("nextButton", false) ]
                 |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
 
-                runningStatus <- RunningStatus.Running
-                printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
-
-                startTimeStop <- now
-                startTimeNext <- now
+                printfn "%s" $"""runningStatus: %s{List.item (int state.RunningStatus) status}"""
                 countUp ()
             | RunningStatus.Running -> ()
             | RunningStatus.Stopping ->
@@ -110,42 +174,53 @@ module App =
 
                 [ ("mainButton", true)
                   ("stopButton", false)
+                  ("prevButton", List.length state.Notes.Finished = 0)
                   ("cutinButton", false)
                   ("nextButton", false) ]
                 |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
 
-                runningStatus <- RunningStatus.Running
-                printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+                state <-
+                    { state with
+                        Stop = { state.Stop with StartTime = now }
+                        Next = { state.Next with StartTime = now }
+                        RunningStatus = RunningStatus.Running }
 
-                startTimeStop <- now
-                startTimeNext <- now
+                printfn "%s" $"""runningStatus: %s{List.item (int state.RunningStatus) status}"""
                 countUp ()
             | _ -> ()
 
     document.getElementById("mainButton").onclick <- start
 
     let stop event =
-        match runningStatus with
+        match state.RunningStatus with
         | RunningStatus.Running ->
             let now = DateTime.Now
-            clearInterval intervalId
-            timeAccStop <- timeAccStop + (now - startTimeStop)
-            timeAccNext <- timeAccNext + (now - startTimeNext)
+            clearInterval state.IntervalId
+
+            state <-
+                { state with
+                    Stop =
+                        { state.Stop with
+                            Acc = state.Stop.Acc + (now - state.Stop.StartTime) }
+                    Next =
+                        { state.Next with
+                            Acc = state.Next.Acc + (now - state.Next.StartTime) }
+                    RunningStatus = RunningStatus.Stopping }
 
             [ ("mainButton", false)
               ("stopButton", true)
+              ("prevButton", true)
               ("cutinButton", true)
               ("nextButton", true) ]
             |> List.iter (fun (x, b) -> (document.getElementById x :?> HTMLButtonElement).disabled <- b)
 
-            runningStatus <- RunningStatus.Stopping
-            printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+            printfn "%s" $"""runningStatus: %s{List.item (int state.RunningStatus) status}"""
         | _ -> ()
 
     document.getElementById("stopButton").onclick <- stop
 
     let reset event =
-        match runningStatus with
+        match state.RunningStatus with
         | RunningStatus.Running -> stop ()
         | RunningStatus.Stopping
         | RunningStatus.Finished ->
@@ -156,44 +231,39 @@ module App =
 
             (document.getElementById "logsTable").innerHTML <- logsTableHeader
 
-            timeAccStop <- TimeSpan.Zero
-            timeAccNext <- TimeSpan.Zero
-
             (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
             (document.getElementById "notes" :?> HTMLInputElement).disabled <- false
-            runningStatus <- RunningStatus.NotStarted
-            printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+
+            state <-
+                { state with
+                    Stop = { state.Stop with Acc = TimeSpan.Zero }
+                    Next = { state.Next with Acc = TimeSpan.Zero }
+                    RunningStatus = RunningStatus.NotStarted }
+
+            printfn "%s" $"""runningStatus: %s{List.item (int state.RunningStatus) status}"""
         | _ -> ()
 
     document.getElementById("resetButton").onclick <- reset
 
     let next event =
-        match runningStatus with
+        match state.RunningStatus with
         | RunningStatus.NotStarted -> start ()
         | RunningStatus.Running ->
-            let td x y z =
-                $"""
-                <tr>
-                    <td class="logs-table-no">%s{x}</td>
-                    <td class="logs-table-time">%s{y}</td>
-                    <td class="logs-table-note">%s{z}</td>
-                </tr>
-                """
-
             let now = DateTime.Now
             let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
 
             logsTable.innerHTML <-
                 logsTable.innerHTML
                 + (td
-                    (string (fst (List.head notes)))
-                    (timeSpanToDisplay (timeAccNext + (now - startTimeNext)))
-                    (snd (List.head notes)))
+                    (string (fst (List.head state.Notes.NotFinished)))
+                    (timeSpanToDisplay (state.Next.Acc + (now - state.Next.StartTime)))
+                    (snd (List.head state.Notes.NotFinished)))
 
-            startTimeNext <- now
-            timeAccNext <- TimeSpan.Zero
+            state <-
+                { state with
+                    Next = { StartTime = now; Acc = TimeSpan.Zero } }
 
-            if List.length notes = 1 then
+            if List.length state.Notes.NotFinished = 1 then
                 logsTable.innerHTML <-
                     logsTable.innerHTML
                     + (td "TOTAL" (document.getElementById("timer").innerText) "END")
@@ -203,54 +273,102 @@ module App =
 
                 (document.getElementById "mainButton" :?> HTMLButtonElement).disabled <- false
                 (document.getElementById "notes" :?> HTMLInputElement).disabled <- false
-                runningStatus <- RunningStatus.Finished
-                printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+
+                state <-
+                    { state with
+                        RunningStatus = RunningStatus.Finished }
+
+                printfn "%s" $"""runningStatus: %s{List.item (int state.RunningStatus) status}"""
             else
-                notes <- List.tail notes
+                state <-
+                    { state with
+                        Notes =
+                            { Finished = state.Notes.Finished @ [ List.head state.Notes.NotFinished ]
+                              NotFinished = List.tail state.Notes.NotFinished } }
 
                 document.getElementById("currNote").innerText <-
-                    $"""%d{fst (List.head notes)}, %s{snd (List.head notes)}"""
+                    $"""%d{fst (List.head state.Notes.NotFinished)}, %s{snd (List.head state.Notes.NotFinished)}"""
 
                 document.getElementById("nextNote").innerText <-
-                    if List.length notes > 1 then
-                        $"""%d{fst (List.item 1 notes)}, %s{snd (List.item 1 notes)}"""
+                    if List.length state.Notes.NotFinished > 1 then
+                        $"""%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"""
                     else
                         ""
+
+                (document.getElementById "prevButton" :?> HTMLButtonElement).disabled <-
+                    List.length state.Notes.Finished = 0
         | _ -> ()
 
     document.getElementById("nextButton").onclick <- next
 
-    let cutin event =
-        match runningStatus with
+    let prev event =
+        match state.RunningStatus with
         | RunningStatus.Running ->
-            let td x y z =
-                $"""
-                <tr>
-                    <td class="logs-table-no">%s{x}</td>
-                    <td class="logs-table-time">%s{y}</td>
-                    <td class="logs-table-note">%s{z}</td>
-                </tr>
-                """
+            printfn "List.length state.Notes.Finished: %d" (List.length state.Notes.Finished)
 
+            if List.length state.Notes.Finished = 0 then
+                ()
+            else
+                let now = DateTime.Now
+                let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
+
+                logsTable.innerHTML <-
+                    logsTable.innerHTML
+                    + (td
+                        (string (fst (List.last state.Notes.Finished)))
+                        (timeSpanToDisplay (state.Next.Acc + (now - state.Next.StartTime)))
+                        (snd (List.last state.Notes.Finished)))
+
+                state <-
+                    { state with
+                        Next = { StartTime = now; Acc = TimeSpan.Zero }
+                        Notes =
+                            { Finished = (List.rev >> List.tail >> List.rev) state.Notes.Finished
+                              NotFinished = List.last state.Notes.Finished :: state.Notes.NotFinished } }
+
+                document.getElementById("currNote").innerText <-
+                    $"""%d{fst (List.head state.Notes.NotFinished)}, %s{snd (List.head state.Notes.NotFinished)}"""
+
+                document.getElementById("nextNote").innerText <-
+                    if List.length state.Notes.NotFinished > 1 then
+                        $"""%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"""
+                    else
+                        ""
+
+                (document.getElementById "prevButton" :?> HTMLButtonElement).disabled <-
+                    List.length state.Notes.Finished = 0
+
+                printfn "%s" $"""runningStatus: %s{List.item (int state.RunningStatus) status}"""
+        | _ -> ()
+
+    document.getElementById("prevButton").onclick <- prev
+
+    let cutin event =
+        match state.RunningStatus with
+        | RunningStatus.Running ->
             let now = DateTime.Now
             let logsTable = document.getElementById "logsTable" :?> HTMLTableElement
 
             logsTable.innerHTML <-
                 logsTable.innerHTML
                 + (td
-                    (string (fst (List.head notes)))
-                    (timeSpanToDisplay (timeAccNext + (now - startTimeNext)))
+                    (string (fst (List.head state.Notes.NotFinished)))
+                    (timeSpanToDisplay (state.Next.Acc + (now - state.Next.StartTime)))
                     "CUT_IN")
 
-            startTimeNext <- now
-            timeAccNext <- TimeSpan.Zero
+            state <-
+                { state with
+                    Next = { StartTime = now; Acc = TimeSpan.Zero }
+                    Notes =
+                        { state.Notes with
+                            NotFinished = state.Notes.NotFinished |> List.map (fun (i, x) -> i + 1, x) } }
 
-            notes <- notes |> List.map (fun (i, x) -> i + 1, x)
-            document.getElementById("currNote").innerText <- $"""%d{fst (List.head notes)}, %s{snd (List.head notes)}"""
+            document.getElementById("currNote").innerText <-
+                $"""%d{fst (List.head state.Notes.NotFinished)}, %s{snd (List.head state.Notes.NotFinished)}"""
 
             document.getElementById("nextNote").innerText <-
-                if List.length notes > 1 then
-                    $"""%d{fst (List.item 1 notes)}, %s{snd (List.item 1 notes)}"""
+                if List.length state.Notes.NotFinished > 1 then
+                    $"""%d{fst (List.item 1 state.Notes.NotFinished)}, %s{snd (List.item 1 state.Notes.NotFinished)}"""
                 else
                     ""
         | _ -> ()
@@ -289,7 +407,7 @@ module App =
                 | "Escape" -> stop ()
                 | "Delete" -> reset ()
                 | "ArrowRight" -> next ()
-                | "ArrowLeft" -> ()
+                | "ArrowLeft" -> prev ()
                 | "@" -> cutin ()
                 | "\\" ->
                     notesEl.focus ()
@@ -299,15 +417,15 @@ module App =
 
     (document.getElementById "timer").innerText <- timeSpanToDisplay TimeSpan.Zero
 
-    [ ("mainButton", "Start watch (Enter)")
-      ("stopButton", "Stop watch (Escape)")
-      ("resetButton", "Reset watch and logs (Delete)")
-      ("prevButton", "Previous note (<)")
-      ("cutinButton", "Cut in (@)")
-      ("nextButton", "Next note (>)")
-      ("helpButton", "Help (?)")
-      ("helpClose", "Close help (Escape)")
-      ("notes", "Type or paste notes to see while speaking or something. (\\)") ]
+    [ ("mainButton", "開始 (Enter)")
+      ("stopButton", "停止 (Escape)")
+      ("resetButton", "リセット (Delete)")
+      ("prevButton", "戻る (<)")
+      ("cutinButton", "割り込み (@)")
+      ("nextButton", "次へ (>)")
+      ("helpButton", "ヘルプ (?)")
+      ("helpClose", "閉じる (Escape)")
+      ("notes", "「ノート」を入力するか貼り付けてください (\\)") ]
     |> List.iter (fun (x, y) -> (document.getElementById x).title <- y)
 
     [ ("stopButton", true)
@@ -323,4 +441,4 @@ module App =
         (document.getElementById x :?> HTMLButtonElement).onclick <-
             fun _ -> (document.getElementById "helpWindow").classList.toggle "active" |> ignore)
 
-    printfn "%s" $"""runningStatus: %s{List.item (int runningStatus) status}"""
+    printfn "%s" $"""runningStatus: %s{List.item (int state.RunningStatus) status}"""

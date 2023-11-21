@@ -1,5 +1,5 @@
 /*
-    cronota Version 0.3.1
+    cronota Version 1.0.0
     https://github.com/taidalog/cronota
     Copyright (c) 2023 taidalog
     This software is licensed under the MIT License.
@@ -8,6 +8,7 @@
 html {
   font-family: 'Noto Sans JP', sans-serif;
   font-weight: 400;
+  color: #444444;
 }
 
 body {
@@ -229,25 +230,36 @@ tbody.logs-table td.logs-table-time {
 }
 
 footer {
-  width: 80%;
-  max-width: 800px;
+  color: #888888;
+  width: 90%;
   margin: 20px auto;
   margin-top: 40px;
+}
+
+footer>div {
+  margin: 10px 0;
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 footer a {
-  color: #5a919a;
+  color: #447f88;
   text-decoration: none;
+}
+
+footer a:visited {
+  color: #754488;
 }
 
 @media (max-width: 799px) {
   footer {
+    margin-top: 20px;
+  }
+
+  footer>div {
     width: 100%;
     margin: 0 auto;
-    margin-top: 20px;
     flex-direction: column;
   }
 
@@ -295,6 +307,14 @@ div.help-window.active {
   scrollbar-width: thin;
 }
 
+div.help-window a {
+  color: #447f88;
+}
+
+div.help-window a:visited {
+  color: #754488;
+}
+
 span.material-symbols-outlined:hover {
   font-variation-settings:
     'FILL' 1
@@ -302,5 +322,5 @@ span.material-symbols-outlined:hover {
 
 span.material-symbols-outlined.help-close:hover {
   color: #ffffff;
-  background-color: #000000;
+  background-color: #444444;
 }
