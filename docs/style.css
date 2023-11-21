@@ -301,6 +301,14 @@ div.help-window.active {
   scrollbar-width: thin;
 }
 
+div.help-window a {
+  color: #447f88;
+}
+
+div.help-window a:visited {
+  color: #754488;
+}
+
 span.material-symbols-outlined:hover {
   font-variation-settings:
     'FILL' 1
