@@ -5,7 +5,14 @@ export default defineConfig({
     base: '/cronota/',
     build: {
         outDir: 'docs',
-        emptyOutDir: true
+        emptyOutDir: true,
+        rollupOptions: {
+            input: {
+                main: 'index.html',
+                information_policy: 'information-policy.html'
+            }
+        }
+
     },
     clearScreen: false,
     server: {
