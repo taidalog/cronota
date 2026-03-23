@@ -6,19 +6,15 @@
       "version": "3.7.20",
       "commands": [
         "fable"
-      ]
+      ],
+      "rollForward": false
     },
     "femto": {
       "version": "0.12.0",
       "commands": [
         "femto"
-      ]
-    },
-    "fantomas": {
-      "version": "6.2.2",
-      "commands": [
-        "fantomas"
-      ]
+      ],
+      "rollForward": false
     }
   }
 }
