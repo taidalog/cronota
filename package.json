@@ -1,14 +1,27 @@
 {
-  "private": true,
+  "name": "cronota",
+  "version": "1.0.0",
+  "description": "Version 1.0.2",
+  "main": "index.js",
   "scripts": {
-    "postinstall": "dotnet tool restore",
-    "start": "dotnet fable watch src --run webpack-dev-server",
-    "build": "dotnet fable src && webpack"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "dotnet fable watch src --run npx vite",
+    "build": "dotnet fable src --run npx vite build"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/taidalog/cronota"
+  },
+  "keywords": [],
+  "author": "taidalog",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "bugs": {
+    "url": "https://github.com/taidalog/cronota/issues"
+  },
+  "homepage": "https://github.com/taidalog/cronota#readme",
   "devDependencies": {
-    "webpack": "^5.75.0",
-    "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.11.1"
-  },
-  "version": "1.0.0"
+    "vite": "^6.4.1"
+  }
 }
